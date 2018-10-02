@@ -33,7 +33,7 @@
 #define COUNTS_PER_REV 768        // wheel encoder's no of ticks per rev
 #define WHEEL_DIAMETER 0.108       // wheel's diameter in meters
 #define PWM_BITS 8                // PWM Resolution of the microcontroller
-#define LR_WHEELS_DISTANCE 0.235  // distance between left and right wheels
+#define LR_WHEELS_DISTANCE 0.240  // distance between left and right wheels
 #define FR_WHEELS_DISTANCE 0.30   // distance between front and rear wheels. Ignore this if you're on 2WD/ACKERMANN
 #define MAX_STEERING_ANGLE 0.415  // max steering angle. This only applies to Ackermann steering
 
@@ -60,11 +60,11 @@ ROBOT ORIENTATION
 */
 
 /// ENCODER PINS
-#define MOTOR1_ENCODER_A 15
-#define MOTOR1_ENCODER_B 14 
+#define MOTOR1_ENCODER_A 2
+#define MOTOR1_ENCODER_B 3 
 
-#define MOTOR2_ENCODER_A 11
-#define MOTOR2_ENCODER_B 12 
+#define MOTOR2_ENCODER_A 4
+#define MOTOR2_ENCODER_B 5 
 
 #define MOTOR3_ENCODER_A 17
 #define MOTOR3_ENCODER_B 16 
@@ -145,11 +145,21 @@ ROBOT ORIENTATION
 #ifdef USE_CUSTOM_DRIVER
   #define MOTOR_DRIVER CUSTOM
 
-  #define MOTOR1_PWM 21
-  #define MOTOR1_DIR 20
+  #define MOTOR1_PWM 23
+  #define MOTOR1_IN_A 21
+  #define MOTOR1_IN_B 21
 
   #define MOTOR2_PWM 22
-  #define MOTOR2_DIR 23
+  #define MOTOR2_IN_A 20
+  #define MOTOR2_IN_B 20
+
+  #define MOTOR3_PWM 6
+  #define MOTOR3_IN_A 7
+  #define MOTOR3_IN_A 7
+
+  #define MOTOR4_PWM 6
+  #define MOTOR4_IN_A 7
+  #define MOTOR4_IN_B 7
 
 
   #define PWM_MAX pow(2, PWM_BITS) - 1
