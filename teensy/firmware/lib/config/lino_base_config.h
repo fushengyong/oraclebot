@@ -155,7 +155,7 @@ ROBOT ORIENTATION
 
   #define MOTOR3_PWM 6
   #define MOTOR3_IN_A 7
-  #define MOTOR3_IN_A 7
+  #define MOTOR3_IN_B 7
 
   #define MOTOR4_PWM 6
   #define MOTOR4_IN_A 7
