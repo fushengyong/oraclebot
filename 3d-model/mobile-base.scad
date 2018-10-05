@@ -59,8 +59,9 @@ botElecHt = 100;
 robotTopHt = robotMidHt + botElecHt;
 
 casterTopHt = motorCenterHt-wheelR+caster_ht;
-
-vslot_pos=[[50,motorCentreOffset-mount_size.y+10],[-50,motorCentreOffset-mount_size.y+10]];
+vslot_dist = 100;
+vslot_ht = 1000;
+vslot_pos=[[vslot_dist/2,motorCentreOffset-mount_size.y+10],[-vslot_dist/2,motorCentreOffset-mount_size.y+10]];
 
 //Left Motor Mount
 //motor_mount("l");
@@ -116,7 +117,7 @@ module robot_base() {
     {
         translate([vslot_pos[i].x,vslot_pos[i].y,sheetW_b]) 
         {
-            extrusion_profile_20x20_v_slot(size=20, height=1000);
+            extrusion_profile_20x20_v_slot(size=20, height=vslot_ht);
             translate([0,0,-sheetW_b]) boltHole(5);
         }
     }
@@ -131,6 +132,12 @@ module robot_base() {
             support_2020(true, sheetW_b);
         }
     }
+    
+    translate([-vslot_dist/2,vslot_pos[0].y,vslot_ht/2]) parallel_linker(vslot_dist);
+    
+    translate([-vslot_dist/2,vslot_pos[0].y,vslot_ht+sheetW_b]) rotate([180,0,0]) parallel_linker(vslot_dist,true);
+    
+    
     
     //translate([0,-(motorCentreOffset-mount_size.y),robotMidHt]) vertical_support(botElecHt,true);
     
