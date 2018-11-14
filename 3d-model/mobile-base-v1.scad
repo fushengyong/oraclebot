@@ -105,17 +105,43 @@ module robot_base() {
         caster_mount(true);
     }
     
+    translate([0,motorCentreOffset-mount_size.y,0]) vertical_support(robotMidHt, true);
+    translate([-0.7*mobileR*sin(60),0.7*mobileR*cos(60),0]) rotate([0,0,45]) vertical_support(robotMidHt, true);
+    translate([0.7*mobileR*sin(60),0.7*mobileR*cos(60),0]) rotate([0,0,-45]) vertical_support(robotMidHt, true);
+    
     translate([0,-8,sheetW_b]) power_box(true,sheetW_b);
     translate([0,-8,sheetW_b+45]) power_box_top(battery_size[battery_used].x);
     translate([0,0,sheetW_b+45+2]) battery();
     
-
+    for( i =[ 0 : len(vslot_pos)-1 ] )
+    {
+        translate([vslot_pos[i].x,vslot_pos[i].y,sheetW_b]) 
+        {
+            extrusion_profile_20x20_v_slot(size=20, height=vslot_ht);
+            translate([0,0,-sheetW_b]) boltHole(5);
+        }
+    }
     
     
     translate([0,0,robotMidHt]) mobile_mid();
     
+    translate([0,0,robotMidHt+sheetW_b]) for( i =[ 0 : len(vslot_pos) - 1] )
+    {
+        translate([vslot_pos[i].x,vslot_pos[i].y,0]) 
+        {
+            support_2020(true, sheetW_b);
+        }
+    }
     
-    translate([0,0,robotTopHt]) mobile_top();
+    translate([-vslot_dist/2,vslot_pos[0].y,vslot_ht/2]) parallel_linker(vslot_dist);
+    
+    translate([-vslot_dist/2,vslot_pos[0].y,vslot_ht+sheetW_b]) rotate([180,0,0]) parallel_linker(vslot_dist,true);
+    
+    
+    
+    //translate([0,-(motorCentreOffset-mount_size.y),robotMidHt]) vertical_support(botElecHt,true);
+    
+    //translate([0,0,robotTopHt]) mobile_top();
     
     
     
@@ -151,6 +177,18 @@ module robot_bottom() {
         translate([0,-8,sheetW_b]) power_box(true,sheetW_b);
         translate([-160/2-20,0,-5]) cylinder(r= 3/2, h = 10);
         translate([-160/2-20,15,-5]) cylinder(r= 3/2, h = 10);
+        
+        translate([0,motorCentreOffset-mount_size.y,0]) vertical_support(robotMidHt,true);
+        translate([-0.7*mobileR*sin(60),0.7*mobileR*cos(60),0]) rotate([0,0,45]) vertical_support(robotMidHt,true);
+        translate([0.7*mobileR*sin(60),0.7*mobileR*cos(60),0]) rotate([0,0,-45]) vertical_support(robotMidHt,true);
+        
+        for( i =[ 0 : len(vslot_pos)-1 ] )
+        {
+            translate([vslot_pos[i].x,vslot_pos[i].y,sheetW_b]) 
+            {
+                translate([0,0,-sheetW_b]) boltHole(5);
+            }
+        }
     }
 }
 
@@ -162,6 +200,20 @@ module mobile_mid() {
     color("brown") difference()
     {
         linear_extrude(height = sheetW_b) base_shape();
+        translate([0,motorCentreOffset-mount_size.y,0]) vertical_support(robotMidHt,true);
+        translate([-0.7*mobileR*sin(60),0.7*mobileR*cos(60),0]) rotate([0,0,45]) vertical_support(robotMidHt,true);
+        translate([0.7*mobileR*sin(60),0.7*mobileR*cos(60),0]) rotate([0,0,-45]) vertical_support(robotMidHt,true);
+        
+        translate([0,-(motorCentreOffset-mount_size.y),0]) vertical_support(botElecHt,true);
+        
+        for( i =[ 0 : len(vslot_pos)-1 ] )
+        {
+            translate([vslot_pos[i].x,vslot_pos[i].y,sheetW_b]) 
+            {
+                cube([20,20,20], center = true);
+                support_2020(true, sheetW_b);
+            }
+        }
     }
 }
 
@@ -169,6 +221,16 @@ module mobile_top() {
     color("brown") difference()
     {
         linear_extrude(height = sheetW_b) base_shape();
+        
+        translate([0,-(motorCentreOffset-mount_size.y),0]) vertical_support(botElecHt,true);
+        
+        for( i =[ 0 : len(vslot_pos)-1 ] )
+        {
+            translate([vslot_pos[i].x,vslot_pos[i].y,sheetW_b]) 
+            {
+                cube([20,20,20], center = true);
+            }
+        }
     }
 }
 
@@ -178,6 +240,31 @@ module base_shape()
     {
         square([mobileW, 2*mobileR], center=true);
         circle(r=mobileR);
+    }
+}
+
+//vertical_support(true);
+module vertical_support( ht, with_mounting_holes = false )
+{
+    
+    difference()
+    {
+        translate([-20,0,0]) {
+            cube([10,10,ht+sheetW_b]);
+            translate([30,0,0]) cube([10,10,ht+sheetW_b]);
+            translate([10,0,sheetW_b]) cube([20,10,ht-sheetW_b]);
+        }
+        translate([0,10/2,0]) boltHole(3,MM,30);
+        for( i = [ 0:2 ] )
+            translate([0,10/2+i*METRIC_NUT_AC_WIDTHS[3]/2,15]) rotate([0,0,90]) nutHole(3);
+        translate([0,10/2,ht+sheetW_b]) rotate([0,180,0]) boltHole(3,MM,30);
+        for( i = [ 0:2 ] )
+            translate([0,10/2+i*METRIC_NUT_AC_WIDTHS[3]/2,ht+sheetW_b-15]) rotate([0,0,90]) nutHole(3);
+    }
+    if( with_mounting_holes )
+    {
+        translate([0,10/2,0]) boltHole(3,MM,30);
+        translate([0,10/2,ht+sheetW_b]) rotate([0,180,0]) boltHole(3,MM,30);
     }
 }
 
