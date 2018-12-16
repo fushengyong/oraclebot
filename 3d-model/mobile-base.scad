@@ -2,6 +2,7 @@ include <MCAD/nuts_and_bolts.scad>;
 include <power_box.scad>;
 include <extrusion_profile_20x20_v-slot.scad>;
 include <accessories_2020.scad>
+include <accessories_pvc_pipe.scad>
 
 $fn=50;
 
@@ -37,13 +38,8 @@ motorPos = 51 + motorDist/2;
 
 casterCenterOffset = 70;
 
-/* not used currently 
-N = 8;
-support_R = 120;
-theta=360/N;
-L_dash = 2*support_R*sin(theta/2)*0.7;
-v_notch = L_dash/2;
-*/
+pvc_r = 22.2/2;
+
 
 battery_size = [ [136,110,28 ], [137,162,28] ]; 
 battery_used = 1;
@@ -54,7 +50,8 @@ mount_thk = 5; //thickness to mount screws
 motor_ht = 5; //height of the motor above the base of the mount
 
 motorCenterHt = sheetW_b+motorR+motor_ht;
-robotMidHt = maxWheelR+motorCenterHt;
+//robotMidHt = maxWheelR+motorCenterHt;
+robotMidHt = 100;
 botElecHt = 100;
 robotTopHt = robotMidHt + botElecHt;
 
@@ -62,6 +59,8 @@ casterTopHt = motorCenterHt-wheelR+caster_ht;
 vslot_dist = 100;
 vslot_ht = 1000;
 vslot_pos=[[vslot_dist/2,motorCentreOffset-mount_size.y+10],[-vslot_dist/2,motorCentreOffset-mount_size.y+10]];
+
+RR = mobileR - 2*pvc_r;
 
 //Left Motor Mount
 //motor_mount("l");
@@ -73,7 +72,8 @@ vslot_pos=[[vslot_dist/2,motorCentreOffset-mount_size.y+10],[-vslot_dist/2,motor
 //vertical_support();
 
 //caster mount
-//caster_mount();
+//caster_wheel(true);
+//caster_mount(false);
 
 //Robot base projection ( for base cutting purposes )
 //projection() robot_bottom();
@@ -99,18 +99,27 @@ module robot_base() {
         translate([shaftL,0,0]) powered_wheel("l");
     }
     
-    translate([0,casterCenterOffset, casterTopHt]) 
+    translate([0,casterCenterOffset, casterTopHt])
     {
-        caster_wheel();
+        
         caster_mount(true);
-    }
+        caster_wheel(true);
+    } 
     
     translate([0,-8,sheetW_b]) power_box(true,sheetW_b);
     translate([0,-8,sheetW_b+45]) power_box_top(battery_size[battery_used].x);
     translate([0,0,sheetW_b+45+2]) battery();
     
-
     
+    
+    deg=[0,-60,60];
+    for( i = [ 0:2 ] )
+    {
+        translate( [ xx(RR, i, 3), -yy(RR, i, 3), sheetW_b ] ) {
+            pvb_pipe(pvc_r, robotTopHt-sheetW_b);
+            rotate([0,0,deg[i]]) pvc_pipe_holder(pvc_r, true, sheetW_b);
+        }
+    }
     
     translate([0,0,robotMidHt]) mobile_mid();
     
@@ -144,14 +153,28 @@ module robot_bottom() {
             translate([shaftL,0,-(sheetW_b+motorR+motor_ht)]) powered_wheel_gap("l");
         }
         translate([0,casterCenterOffset, 0]) cylinder(r=caster_hole_R,h=10);
-        translate([0,casterCenterOffset, casterTopHt]) 
+        translate([0,casterCenterOffset, casterTopHt])
         {
             caster_mount(true);
         }
         translate([0,-8,sheetW_b]) power_box(true,sheetW_b);
         translate([-160/2-20,0,-5]) cylinder(r= 3/2, h = 10);
         translate([-160/2-20,15,-5]) cylinder(r= 3/2, h = 10);
+        
+        translate([160/2+20,0,-5]) cylinder(r= 3/2, h = 10);
+        translate([160/2+20,15,-5]) cylinder(r= 3/2, h = 10);
+        
+        deg=[0,-60,60];
+        for( i = [ 0:2 ] )
+        {
+            translate( [ xx(RR, i, 3), -yy(RR, i, 3), sheetW_b ] ) rotate([0,0,deg[i]]) pvc_pipe_holder(pvc_r, true, sheetW_b);
+        }
     }
+}
+
+module pvb_pipe(r, h)
+{
+    cylinder(r = r, h = h);
 }
 
 module mobile_bottom() {
@@ -200,7 +223,7 @@ module caster_mount(with_mounting_holes = false)
             {
                 rotate([0,0,30]) for (i = [0:3])
                 {        
-                    translate([xx(caster_hole_R+5,i),yy(caster_hole_R+5,i),-casterTopHt]) boltHole(3,MM,2*casterTopHt);
+                    translate([xx(caster_hole_R+5,i+0.25,3),yy(caster_hole_R+5,i+0.25,3),-casterTopHt]) boltHole(3,MM,2*casterTopHt);
                 }
             }
         }
@@ -210,12 +233,12 @@ module caster_mount(with_mounting_holes = false)
         {
             rotate([0,0,30])  for (i = [0:3])
             {        
-                translate([xx(caster_hole_R+5,i),yy(caster_hole_R+5,i),-casterTopHt]) boltHole(3,MM,3*casterTopHt);
+                translate([xx(caster_hole_R+5,i+0.25,3),yy(caster_hole_R+5,i+0.25,3),-casterTopHt]) boltHole(3,MM,3*casterTopHt);
             }
         }
         rotate([0,0,30])  for (i = [0:3])
             {        
-                translate([xx(caster_hole_R+5,i),yy(caster_hole_R+5,i),10-METRIC_NUT_THICKNESS[3]]) nutHole(3);
+                translate([xx(caster_hole_R+5,i,3),yy(caster_hole_R+5,i),10-METRIC_NUT_THICKNESS[3]]) nutHole(3);
             }
         
     }
@@ -410,5 +433,5 @@ module motor_face(exact = false)
 
 /********************* FUNCTIONS ********************/
 
-function xx(r, i) = r*sin(90-(360/3)*i);
-function yy(r, i) = r*cos(90+(360/3)*i);
+function xx(r, i, n) = r*sin((360/n)*i);
+function yy(r, i, n) = r*cos((360/n)*i);
